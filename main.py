@@ -1,22 +1,28 @@
-import pandas as pd
+import os
 from fonction import download_process
 
 def main():
-    file_path = input("Enter the path of the file list url: ").strip()
-    file_path = file_path.strip('"').strip("'")
-    file_path = file_path.replace("\\", "/")
+    # Get the directory where the script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(script_dir, "channel_url.txt")
     
     try:
-        df = pd.read_excel(file_path)
-        if 'url' not in df.columns:
-            print('La colonne "url" est manquante.')
+        with open(file_path, 'r') as file:
+            # Read all lines and remove empty lines and whitespace
+            urls = [line.strip() for line in file.readlines() if line.strip()]
+            
+        if not urls:
+            print('\n\n--- ERROR --- \n\nLe fichier channel_url.txt est vide.')
             return
-        for index, row in df.iterrows():
-            channel_url = row['url']
-            download_process(channel_url)
-        print('Tous les traitements ont été effectués avec succès.')
+            
+        for url in urls:
+            download_process(url)
+            
+        print('\n\n--- SUCCESS --- \n\n')
+    except FileNotFoundError:
+        print(f"\n\n--- ERROR --- \n\nLe fichier channel_url.txt n'a pas été trouvé dans le dossier du script.")
     except Exception as e:
-        print(f"Erreur lors du traitement de {file_path} : {str(e)}")
+        print(f"\n\n--- ERROR --- \n\nErreur lors du traitement de channel_url.txt : {str(e)}")
         print(e)
 
 if __name__ == '__main__':
